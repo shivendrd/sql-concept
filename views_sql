@@ -1,0 +1,4 @@
+view -
+
+It is a virtual table constructed from exsisting table . These exsisting table can be from the single table or multiple table with required attributes. 
+  It does not mean all the attribute should be there. 
