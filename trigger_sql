@@ -1,0 +1,126 @@
+Trigger -- 
+
+A PostgreSQL trigger is a function invoked automatically whenever an event associated with a table occurs. An event could be any of the following: INSERT, UPDATE, DELETE or TRUNCATE.
+
+
+A trigger is a special user-defined function associated with a table. To create a new trigger, you define a trigger function first, and then bind this trigger function to a table.
+
+The difference between a trigger and a user-defined function is that a trigger is automatically invoked when a triggering event occurs.
+
+PostgreSQL provides two main types of triggers:
+
+Row-level triggers
+Statement-level triggers.
+
+
+When to use triggers
+Triggers are useful in case the database is accessed by various applications, and you want to keep the cross-functionality within the database that runs automatically 
+whenever the data of the table is modified. For example, if you want to keep the history of data without requiring the application to have logic to check for every event such as INSERT or UDPATE.
+
+Also, you can use triggers to maintain complex data integrity rules which cannot implement elsewhere except at the database level. For example,
+when a new row is added into the customer table, other rows must be also created in tables of banks and credits.
+
+The main drawback of using a trigger is that you must know the trigger exists and understand its logic to figure out the effects when data changes.
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+PostgreSQL CREATE TRIGGER --- 
+
+To create a new trigger in PostgreSQL, you follow these steps:
+
+-- First, create a trigger function using CREATE FUNCTION statement.
+-- Second, bind the trigger function to a table by using CREATE TRIGGER statement.
+
+
+PostgreSQL CREATE TRIGGER example
+
+DROP TABLE IF EXISTS employees;
+
+CREATE TABLE employees(
+   id INT GENERATED ALWAYS AS IDENTITY,
+   first_name VARCHAR(40) NOT NULL,
+   last_name VARCHAR(40) NOT NULL,
+   PRIMARY KEY(id)
+);
+
+Suppose that when the name of an employee changes, you want to log the changes in a separate table called employee_audits :
+
+CREATE TABLE employee_audits (
+   id INT GENERATED ALWAYS AS IDENTITY,
+   employee_id INT NOT NULL,
+   last_name VARCHAR(40) NOT NULL,
+   changed_on TIMESTAMP(6) NOT NULL
+);
+
+1...  First, create a new function called log_last_name_changes:
+
+CREATE OR REPLACE FUNCTION log_last_name_changes()
+  RETURNS TRIGGER 
+  LANGUAGE PLPGSQL
+  AS
+$$
+BEGIN
+	IF NEW.last_name <> OLD.last_name THEN
+		 INSERT INTO employee_audits(employee_id,last_name,changed_on)
+		 VALUES(OLD.id,OLD.last_name,now());
+	END IF;
+
+	RETURN NEW;
+END;
+$$
+
+
+The function inserts the old last name into the employee_audits table including employee id, last name, and the time of change if the last name of an employee changes.
+
+The OLD represents the row before update while the NEW represents the new row that will be updated. The OLD.last_name returns the last name before
+the update and the NEW.last_name returns the new last name.
+
+2.. Second, bind the trigger function to the employees table. The trigger name is last_name_changes. Before the value of the last_name column is updated,
+the trigger function is automatically invoked to log the changes.
+
+CREATE TRIGGER last_name_changes
+  BEFORE UPDATE
+  ON employees
+  FOR EACH ROW
+  EXECUTE PROCEDURE log_last_name_changes();
+
+3.. Third, insert some rows into the employees table:
+
+INSERT INTO employees (first_name, last_name)
+VALUES ('John', 'Doe');
+
+INSERT INTO employees (first_name, last_name)
+VALUES ('Lily', 'Bush');
+
+4.. Fourth, examine the contents of the employees table:
+
+SELECT * FROM employees;
+Suppose that Lily Bush changes her last name to Lily Brown.
+
+5.. Fifth, update Lily’s last name to the new one:
+UPDATE employees
+SET last_name = 'Brown'
+WHERE ID = 2;
+
+6. check if the last name of Lily has been updated:
+SELECT * FROM employees;
+
+7.. verify the contents of the employee_audits table:
+SELECT * FROM employee_audits;
+
+
+The change was logged in the employee_audits table by the trigger.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
