@@ -201,6 +201,19 @@ from employee e;
 
 explanation of query --  so the first two record will be 0 and 0 because we have specified lag(salary,2,0) so this will be default value 
 
+QUERY- if salary of previous employee is lower then 'Lower than prev emp' if salary of previous employee is higher then 'Higher than prev emp' if it is equal then
+'Equal to prev emp'
+
+SELECT
+  e.*,
+  LAG(salary) OVER(PARTITION BY dept_name ORDER BY emp_id) AS prev_emp_salary,
+  CASE 
+    WHEN e.salary > LAG(salary) OVER(PARTITION BY dept_name ORDER BY emp_id) THEN 'Higher than prev emp'
+    WHEN e.salary < LAG(salary) OVER(PARTITION BY dept_name ORDER BY emp_id) THEN 'Lower than prev emp'
+    WHEN e.salary = LAG(salary) OVER(PARTITION BY dept_name ORDER BY emp_id) THEN 'Equal to prev emp'
+  END AS sal_range
+FROM employee e;
+
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 LEAD()--- 
