@@ -125,3 +125,109 @@ where x.rnm<=2;
 
 explanation of query -- Again we will write a subquery the only two changes here will be inside over() clause where we will get the emp_id in decending order and one change will be in where() clause 
 
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+RANK()--- 
+
+Query --  Let's say we want to fectch the top 3 employees in each of the department earning the max salary
+
+you need to rank based on employee then you need to fetch top 3  employee which is earning max salary
+
+select e.*,
+rank() over(partition by dept_name order by salary DESC) as rnk
+from employee e;
+
+suppose here you have a two records whose salary is same suppose 2000 then rank function will assign
+same rank for both of the two records and then skip the 1 rank start from next rank 
+
+by example in Admin department has 4 people Monica,Maryam,Mohan,Gautam
+Monica has salary 5000 then it will create a rank  1
+Maryam has salary 4000 then it will create a rank  2
+Mohan has salary  4000 then it will create a rank  2
+Gautam has salary 2000 then it will create a rank  4
+
+
+
+QUERY -- If we wanted to records of top 3 employees in each of the department earning the max salary
+
+select * from (
+	select e.*,
+	rank() over(partition by dept_name order by salary DESC) as rnk
+	from employee e) x
+where x.rnk<4;
+
+explanation - Again we use subquery 
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+DENSE_RANK()--- 
+
+
+select e.*,
+rank() over(partition by dept_name order by salary DESC) as rnk,
+dense_rank() over(partition by dept_name order by salary DESC) as dense_rnk
+from employee e;
+
+suppose here you have a two records whose salary is same suppose 2000 then dense rank function will assign
+same rank for both of the two records and did not skip any rank . this is the only ddifference between rank and dense_rank 
+
+by example in Admin department has 4 people Monica,Maryam,Mohan,Gautam
+Monica has salary 5000 then it will create a dense rank  1
+Maryam has salary 4000 then it will create a dense rank  2
+Mohan has salary  4000 then it will create a dense rank  2
+Gautam has salary 2000 then it will create a dense rank  3
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+LAG()--- 
+
+
+QUERY -- fetch a query to display if the salary of an employee is higher or lower or equal to previous employee
+
+select e.*,
+lag(salary) over(partition by dept_name order by emp_id) as prev_emp_salary
+from employee e;
+
+explanation of query --
+if i exequet this query what's happening here prev_emp_salary going to fetch previous employee salary 
+for the first record there will be no previous employee so by defaullt lag function will return 
+null value because there was no previous record
+
+
+QUERY -- if i want to look the two previous record 
+
+select e.*,
+lag(salary,2,0) over(partition by dept_name order by emp_id) as prev_emp_salary
+from employee e;
+
+explanation of query --  so the first two record will be 0 and 0 because we have specified lag(salary,2,0) so this will be default value 
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+LEAD()--- 
+
+QUERY -- show the next record of the employee 
+
+SELECT 
+  e.*,
+  LEAD(salary) OVER(PARTITION BY dept_name ORDER BY emp_id) AS next_emp_salary
+FROM employee e;
+
+explanation of query --  here the last record will be null 
+
+QUERY -- if we want to specify the value as a 0 and want to see next 2 record 
+
+SELECT 
+  e.*,
+  LEAD(salary,2,0) OVER(PARTITION BY dept_name ORDER BY emp_id) AS next_emp_salary
+FROM employee e;
+
+explanation of query -- so the last two record will be 0 and 0 because we have specified LEAD(salary,2,0) so this will be default value 
+
+
+
+
+
+
+
+
+
