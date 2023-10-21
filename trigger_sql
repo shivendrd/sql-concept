@@ -112,6 +112,26 @@ SELECT * FROM employee_audits;
 The change was logged in the employee_audits table by the trigger.
 
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+DROP TRIGGER
+Follow these steps 
+
+1.. specify the name of the trigger which you want to delete after the DROP TRIGGER keywords.
+2.. use IF EXISTS to conditionally delete the trigger only if it exists. Attempt to delete a non-existing trigger without specifying the IF EXISTS statement results in an error.
+If you use IF EXISTS to delete a non-existing trigger, PostgreSQL issues a notice instead.
+3.. specify the name of the table to which the trigger belongs. If the table belongs to a specific schema,
+you can use the schema-qualified name of the table e.g., schema_name.table_name.
+4.. use the CASCADE option if you want to drop objects that depend on the trigger automatically.
+Note that CASCADE option will also delete objects that depend on objects that depend on the trigger.
+5..  use the RESTRICT option to refuse to drop the trigger if any objects depend on it. By default, the DROP TRIGGER statement uses RESTRICT.
+Note that in SQL standard, trigger names are not local to tables so the statement is simply:
+
+DROP TRIGGER last_name_changes
+ON employees;
+
+
+
+
 
 
 
