@@ -2,3 +2,17 @@ view -
 
 It is a virtual table constructed from exsisting table . These exsisting table can be from the single table or multiple table with required attributes. 
   It does not mean all the attribute should be there. 
+
+
+changes made in table reflects on view.
+changes made on view  reflects on Table.
+
+A view is a stored query. A view can be accessed as a virtual table in PostgreSQL. In other words, a PostgreSQL view is a logical table that represents data 
+of one or more underlying tables through a SELECT statement.
+
+Note that a view does not store data physically like a table except for a materialized view.
+
+
+
+
+
