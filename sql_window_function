@@ -72,3 +72,56 @@ by using this you can get max salary different from each of the department
 
 Note*--  same we can use other aggregate function like avg(), min(), max() etc. 
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ROW_NUMBER()--- Its going to assign value to each of the records in the table . The clause we will use here row_number()
+
+select e.*,
+row_number() over() as rn
+from employee e;
+
+explanation of query -- For every record its going to create a unique identifier inside over() clause we have not passed yet any column that's why sql will treat as a one window and for that whole window its going to assign a unique 
+identifier row number()
+
+Query --  What if we want to assign no based on different department - 
+
+select e.*,
+row_number() over(partition by dept_name) as rnm
+from employee e;
+
+explanation of query -- every unique department the row_number() strat from 1 to no of record present in that department . 
+example -  HR Departemnt has 4 people (then it will start from 1 to 4)
+           IT Department has 7 people (then it will start from 1 to 7)
+           Admin Department has 6 people(then it will start from 1 to 6)
+By this Query you can see one unique thing data will not being sorted so
+Query -- what will we do to sort the data 
+Answer is simple we will use order by clause in emp_id
+
+select e.*,
+row_number() over(partition by dept_name order by emp_id) as rnm
+from employee e;
+
+------
+* Now the Important Question is What is the use of row_number() where can we use such use case -- 
+Query -- Let's say to fetch the first 2 employee from each department who joined from the beginning -- so there id will be less 
+
+
+
+select * from(
+	select e.*,
+	row_number() over(partition by dept_name order by emp_id) as rnm
+	from employee e) as x
+where x.rnm<3;
+
+explanation of query -- we will write a subquery then we will use the inner query to fetch the record and outer query we will will use to fetch only two records 
+
+Query -- what we want reverse latest 2 employee from each department who joined earlier -- so the id will be more for this 
+
+select * from(
+	select e.*,
+	row_number() over(partition by dept_name order by emp_id DESC) as rnm
+	from employee e) as x
+where x.rnm<=2;
+
+
+explanation of query -- Again we will write a subquery the only two changes here will be inside over() clause where we will get the emp_id in decending order and one change will be in where() clause 
+
